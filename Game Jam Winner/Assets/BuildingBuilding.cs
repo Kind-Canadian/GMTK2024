@@ -5,14 +5,20 @@ using UnityEngine;
 public class BuildingBuilding : MonoBehaviour
 {
     public GameObject bottom;
-    public GameObject block;
+    public GameObject pblock;
+    public GameObject tblock;
+    public GameObject gblock;
     //The list effectively mimics the blocks order on screen just in a list instead
     //index 0 is the base of the building and the highest index is the top
-    public List<GameObject> blocks = new List<GameObject>();
+    public List<GameObject> pBlocks = new List<GameObject>();
+    public List<GameObject> tBlocks = new List<GameObject>();
+    public List<GameObject> gBlocks = new List<GameObject>();
     // Start is called before the first frame update
     void Start()
     {
-        blocks.Add(GameObject.FindGameObjectWithTag("Base"));
+        pBlocks.Add(GameObject.FindGameObjectWithTag("pBase"));
+        tBlocks.Add(GameObject.FindGameObjectWithTag("tBase"));
+        gBlocks.Add(GameObject.FindGameObjectWithTag("gBase"));
     }
 
     // Update is called once per frame
@@ -20,28 +26,76 @@ public class BuildingBuilding : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            build();
+            pbuild();
+            tbuild();
+            gbuild();
         }
-        if (Input.GetMouseButtonDown(1) && blocks.Count > 1)
+
+
+        if (Input.GetMouseButtonDown(1) && pBlocks.Count > 1)
         {
-            GameObject des = blocks[0];
-            blocks.RemoveAt(0);
+            GameObject des = pBlocks[0];
+            pBlocks.RemoveAt(0);
             Destroy(des);
         }
-        if (!blocks[0].CompareTag("Base"))
+        if (Input.GetMouseButtonDown(1) && tBlocks.Count > 1)
         {
-            blocks[0].tag = "Base";
+            GameObject des = tBlocks[0];
+            tBlocks.RemoveAt(0);
+            Destroy(des);
         }
-        if(!blocks[blocks.Count - 1].CompareTag("Top") && blocks.Count > 1) 
+        if (Input.GetMouseButtonDown(1) && gBlocks.Count > 1)
         {
-            blocks[blocks.Count - 2].tag = "Middle";
-            blocks[blocks.Count - 1].tag = "Top";
+            GameObject des = gBlocks[0];
+            gBlocks.RemoveAt(0);
+            Destroy(des);
         }
-        
+
+        if (!pBlocks[0].CompareTag("Base"))
+        {
+            Debug.Log("gay");
+            pBlocks[0].tag = "Base";
+        }
+        if(!pBlocks[pBlocks.Count - 1].CompareTag("Top") && pBlocks.Count > 1) 
+        {
+            pBlocks[pBlocks.Count - 2].tag = "Middle";
+            pBlocks[pBlocks.Count - 1].tag = "Top";
+        }
+        if (!tBlocks[0].CompareTag("Base"))
+        {
+            tBlocks[0].tag = "Base";
+        }
+        if (!tBlocks[tBlocks.Count - 1].CompareTag("Top") && tBlocks.Count > 1)
+        {
+            tBlocks[tBlocks.Count - 2].tag = "Middle";
+            tBlocks[tBlocks.Count - 1].tag = "Top";
+        }
+
+        if (!gBlocks[0].CompareTag("Base"))
+        {
+            
+            gBlocks[0].tag = "Base";
+        }
+        if (!gBlocks[gBlocks.Count - 1].CompareTag("Top") && gBlocks.Count > 1)
+        {
+            gBlocks[gBlocks.Count - 2].tag = "Middle";
+            gBlocks[gBlocks.Count - 1].tag = "Top";
+        }
+
     }
-    void build()
+    void pbuild()
     {
-        GameObject addon = Instantiate(block, new Vector3(blocks[0].transform.position.x, blocks[blocks.Count - 1].transform.position.y + 10, blocks[0].transform.position.z), Quaternion.identity, null);
-        blocks.Add(addon);
+        GameObject addon = Instantiate(pblock, new Vector3(pBlocks[0].transform.position.x, pBlocks[pBlocks.Count - 1].transform.position.y + 10, pBlocks[0].transform.position.z), Quaternion.identity, null);
+        pBlocks.Add(addon);
+    }
+    void tbuild()
+    {
+        GameObject addon = Instantiate(tblock, new Vector3(tBlocks[0].transform.position.x, tBlocks[tBlocks.Count - 1].transform.position.y + 10, tBlocks[0].transform.position.z), Quaternion.identity, null);
+        tBlocks.Add(addon);
+    }
+    void gbuild()
+    {
+        GameObject addon = Instantiate(gblock, new Vector3(gBlocks[0].transform.position.x, gBlocks[gBlocks.Count - 1].transform.position.y + 10, gBlocks[0].transform.position.z), Quaternion.identity, null);
+        gBlocks.Add(addon);
     }
 }
