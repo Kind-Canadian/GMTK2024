@@ -10,6 +10,9 @@ TagManager:
   - pBase
   - tBase
   - gBase
+  - scale
+  - LScale
+  - RScale
   layers:
   - Default
   - TransparentFX

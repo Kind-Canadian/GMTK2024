@@ -25,7 +25,7 @@ public class ScaleRot : MonoBehaviour
 
         //transform.rotation = Quaternion.Euler(0, 0, rot);
         //Debug.Log(rb.angularVelocity.z);
-
+        /*
         if(transform.rotation.z >= 10 * Mathf.Deg2Rad || transform.rotation.z <= -10 * Mathf.Deg2Rad && rb.angularVelocity.z > 0.2f &&canbounce == true)
         {
             Debug.Log("shit");
@@ -33,6 +33,8 @@ public class ScaleRot : MonoBehaviour
             canbounce = false;
             bouncetime = 60;
         }
+        */
+        /*
         if (transform.rotation.z >= 10 * Mathf.Deg2Rad || transform.rotation.z <= -10 * Mathf.Deg2Rad && rb.angularVelocity.z < 0.2f )
         {
             if(transform.rotation.z < 0)
@@ -44,7 +46,7 @@ public class ScaleRot : MonoBehaviour
                 transform.rotation = Quaternion.Euler(0, 0, 20);
             }
         }
-
+        */
         if (bouncetime > 0)
         {
             bouncetime--;
@@ -54,7 +56,7 @@ public class ScaleRot : MonoBehaviour
             rb.angularVelocity = rb.angularVelocity * 0.5f;
             canbounce = true;
         }
-
+        /*
         if(rb1.mass == rb2.mass )
         {
             if(transform.rotation.z < 0.002f && transform.rotation.z > -0.002f)
@@ -78,6 +80,7 @@ public class ScaleRot : MonoBehaviour
             }
 
         }
+        */
 
     }
 }
