@@ -85,17 +85,17 @@ public class BuildingBuilding : MonoBehaviour
     }
     void pbuild()
     {
-        GameObject addon = Instantiate(pblock, new Vector3(pBlocks[0].transform.position.x, pBlocks[pBlocks.Count - 1].transform.position.y + 10, pBlocks[0].transform.position.z), Quaternion.identity, null);
+        GameObject addon = Instantiate(pblock, new Vector3(pBlocks[0].transform.position.x, pBlocks[pBlocks.Count - 1].transform.position.y + 10, pBlocks[0].transform.position.z), pBlocks[0].transform.rotation, null);
         pBlocks.Add(addon);
     }
     void tbuild()
     {
-        GameObject addon = Instantiate(tblock, new Vector3(tBlocks[0].transform.position.x, tBlocks[tBlocks.Count - 1].transform.position.y + 10, tBlocks[0].transform.position.z), Quaternion.identity, null);
+        GameObject addon = Instantiate(tblock, new Vector3(tBlocks[0].transform.position.x, tBlocks[tBlocks.Count - 1].transform.position.y + 10, tBlocks[0].transform.position.z), tBlocks[0].transform.rotation, null);
         tBlocks.Add(addon);
     }
     void gbuild()
     {
-        GameObject addon = Instantiate(gblock, new Vector3(gBlocks[0].transform.position.x, gBlocks[gBlocks.Count - 1].transform.position.y + 10, gBlocks[0].transform.position.z), Quaternion.identity, null);
+        GameObject addon = Instantiate(gblock, new Vector3(gBlocks[0].transform.position.x, gBlocks[gBlocks.Count - 1].transform.position.y + 10, gBlocks[0].transform.position.z), gBlocks[0].transform.rotation, null);
         gBlocks.Add(addon);
     }
 }
