@@ -8,6 +8,7 @@ public class BuildingBuilding : MonoBehaviour
     public GameObject pblock;
     public GameObject tblock;
     public GameObject gblock;
+    public ParticleSystem part;
     //The list effectively mimics the blocks order on screen just in a list instead
     //index 0 is the base of the building and the highest index is the top
     public List<GameObject> pBlocks = new List<GameObject>();
@@ -34,6 +35,7 @@ public class BuildingBuilding : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1) && pBlocks.Count > 1)
         {
+            part.Play(true);
             GameObject des = pBlocks[0];
             pBlocks.RemoveAt(0);
             Destroy(des);
@@ -85,17 +87,17 @@ public class BuildingBuilding : MonoBehaviour
     }
     void pbuild()
     {
-        GameObject addon = Instantiate(pblock, new Vector3(pBlocks[0].transform.position.x, pBlocks[pBlocks.Count - 1].transform.position.y + 10, pBlocks[0].transform.position.z), Quaternion.identity, null);
+        GameObject addon = Instantiate(pblock, new Vector3(pBlocks[0].transform.position.x, pBlocks[pBlocks.Count - 1].transform.position.y + 10, pBlocks[0].transform.position.z), pBlocks[0].transform.rotation, null);
         pBlocks.Add(addon);
     }
     void tbuild()
     {
-        GameObject addon = Instantiate(tblock, new Vector3(tBlocks[0].transform.position.x, tBlocks[tBlocks.Count - 1].transform.position.y + 10, tBlocks[0].transform.position.z), Quaternion.identity, null);
+        GameObject addon = Instantiate(tblock, new Vector3(tBlocks[0].transform.position.x, tBlocks[tBlocks.Count - 1].transform.position.y + 10, tBlocks[0].transform.position.z), tBlocks[0].transform.rotation, null);
         tBlocks.Add(addon);
     }
     void gbuild()
     {
-        GameObject addon = Instantiate(gblock, new Vector3(gBlocks[0].transform.position.x, gBlocks[gBlocks.Count - 1].transform.position.y + 10, gBlocks[0].transform.position.z), Quaternion.identity, null);
+        GameObject addon = Instantiate(gblock, new Vector3(gBlocks[0].transform.position.x, gBlocks[gBlocks.Count - 1].transform.position.y + 10, gBlocks[0].transform.position.z), gBlocks[0].transform.rotation, null);
         gBlocks.Add(addon);
     }
 }

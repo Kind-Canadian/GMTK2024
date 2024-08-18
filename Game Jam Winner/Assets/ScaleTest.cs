@@ -59,8 +59,8 @@ public class ScaleTest : MonoBehaviour
         //adds the weights to the corresponding sides if there are no blcoks to be removed from the other side
         if (Input.GetKeyDown(KeyCode.Q) && happiness <= 50)
         {
-            randx = Random.Range(-0.25f, 0.25f);
-            randz = Random.Range(-0.25f, 0.25f);
+            randx = Random.Range(-0.5f, 0.5f);
+            randz = Random.Range(-0.5f, 0.5f);
             GameObject sad = Instantiate(weight, new Vector3(LScale.position.x + randx,LScale.position.y - 1,LScale.position.z + randz), Quaternion.identity);
             sadweights.Add(sad);
             //make the happiness go up/down after the first block has touched it
@@ -78,8 +78,8 @@ public class ScaleTest : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.E) && happiness >= 50)
         {
-            randx = Random.Range(-0.25f, 0.25f);
-            randz = Random.Range(-0.25f, 0.25f);
+            randx = Random.Range(-0.5f, 0.5f);
+            randz = Random.Range(-0.5f, 0.5f);
             GameObject happy = Instantiate(weight, new Vector3(RScale.position.x, RScale.position.y - 1, RScale.position.z), Quaternion.identity);
             happyweights.Add(happy);
             if(happiness > 50)
