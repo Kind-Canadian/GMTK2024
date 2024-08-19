@@ -19,6 +19,14 @@ public class GameManager : MonoBehaviour
     public float Thf_Population = 10; // ID = 3.1
     public float Thf_Happiness = 50; // ID = 3.2
 
+    public float Prev_Pst_Population;
+    public float Prev_Pst_Happiness;
+    public float Prev_Grd_Population;
+    public float Prev_Grd_Happiness;
+    public float Prev_Thf_Population;
+    public float Prev_Thf_Happiness;
+    public float Prev_Money;
+
     public float Money = 100; // ID 4.1
     
     public float MoneyDisplay;
@@ -26,10 +34,11 @@ public class GameManager : MonoBehaviour
     public string MainText;
     public string Choice1_Text;
     public string Choice2_Text;
+    public string SummaryScreenText;
    
     public int CardNumber;
     public int CardsUsed;
-    public int DailyCards = 20;
+    public int DailyCards = 1;
 
     public TMP_Text MainTextObject;
     public TMP_Text Choice1_TextObject;
@@ -44,13 +53,19 @@ public class GameManager : MonoBehaviour
     public TMP_Text Thf_PopulationText;
     public TMP_Text Thf_HappinessText;
 
+    public TMP_Text SummaryTextObject;
+
     public int Day = 0;
+
+    public List<float[]> OptionChosen;
 
     public List<float[]> Choice1_Effects = new List<float[]>();
     public List<float[]> Choice2_Effects = new List<float[]>();
 
     public GameObject CardMenuObject;
-    public bool ShowCardMenu;
+    public bool ShowCardMenu = false;
+    public GameObject SummaryMenuObject;
+    public bool ShowSummaryMenu = false;
 
     public List<int> CardPool;
     public List<int> PosibleCards;
@@ -60,7 +75,7 @@ public class GameManager : MonoBehaviour
     private int CardsPerDay;
     public float CardsPickedUp;
 
-    public string KingdomName = "Shitsenburg";
+    public string KingdomName = "KINGDOM_NAME";
 
 
     // Start is called before the first frame update
@@ -81,8 +96,10 @@ public class GameManager : MonoBehaviour
         }
 
         CardMenuObject.SetActive(ShowCardMenu);
+        SummaryMenuObject.SetActive(ShowSummaryMenu);
 
         MoneyText.text = ((Mathf.Round(MoneyDisplay)) + " Shillings");
+        SummaryTextObject.text = (SummaryScreenText);
 
         Pst_PopulationText.text = "Peasant Population: " + (Pst_Population);
         Pst_HappinessText.text = "Peasant Happiness: " + (Pst_Happiness);
@@ -100,16 +117,26 @@ public class GameManager : MonoBehaviour
         }
 
         if (CardDelay >= 1) {
-            ShowCard();
+            if (DailyCards <= CardsUsed) {
+                DayEnd();
+            } else {
+                ShowCard();
+            }
             CardDelay = -1;
         }
 
         if (Money > MoneyDisplay) {
-            MoneyDisplay += 1 * Time.deltaTime * 30;
+            MoneyDisplay += Time.deltaTime * 30;
+            if (Time.deltaTime * 30 < (MoneyDisplay - Money)) {
+                MoneyDisplay = Money;
+            }
         }
 
         if (Money < MoneyDisplay) {
-            MoneyDisplay -= 1 * Time.deltaTime * 30;
+            MoneyDisplay -= Time.deltaTime * 30;
+            if (Time.deltaTime * 30 < (Money - MoneyDisplay)) {
+                MoneyDisplay = Money;
+            }
         }
     }
 
@@ -130,11 +157,7 @@ public class GameManager : MonoBehaviour
         CardPool.RemoveAt(0);
         CardsUsed += 1;
         ShowCardMenu = false;
-        if (DailyCards <= CardsUsed) {
-            DayEnd();
-        } else {
-            CardDelay = 0;
-        }
+        CardDelay = 0;
     }
 
     public void DayStart() 
@@ -156,20 +179,64 @@ public class GameManager : MonoBehaviour
             
         }
 
+            Prev_Pst_Population = Pst_Population;
+            Prev_Pst_Happiness = Pst_Happiness;
+            Prev_Grd_Population = Grd_Population;
+            Prev_Grd_Happiness = Grd_Happiness;
+            Prev_Thf_Population = Thf_Population;
+            Prev_Thf_Happiness = Thf_Happiness;
+            Prev_Money = Money;
+
         CardsUsed = 0;
         CreateCardPool();
         SetCard(0);
         ShowCard();
         Day += 1;
+
+        ShowSummaryMenu = false;
     }
 
     public void DayEnd() 
     {
+
+        SummaryScreenText = "   ~ Day Summary ~<br>" + 
+        "<br>Money" + 
+        "<br>   Money Gained: " + (Money - Prev_Money) + 
+        "<br>" + 
+        "<br>Peasants" + 
+        "<br>   Population Gained: " +  (Pst_Population - Prev_Pst_Population) +
+        "<br>   Happiness Gained: " +  (Pst_Happiness - Prev_Pst_Happiness) +
+        "<br>" + 
+        "<br>Guards" + 
+        "<br>   Population Gained: " +  (Grd_Population - Prev_Grd_Population) +
+        "<br>   Happiness Gained: " +  (Grd_Happiness - Prev_Grd_Happiness) +
+        "<br>" + 
+        "<br>Thieves" + 
+        "<br>   Population Gained: " +  (Thf_Population - Prev_Thf_Population) +
+        "<br>   Happiness Gained: " +  (Thf_Happiness - Prev_Thf_Happiness) +
+        "<br>" + 
+        "<br>   ~ Day End Expenses ~" + 
+        "<br>" + 
+        "<br>Tax Income: " + (Pst_TaxRate * Pst_Population) + " shillings" +
+        "<br>Guard Pay: ";
+
+        if (Day % Grd_PayDay == 0) {
+            SummaryScreenText = (SummaryScreenText) + "-" + (Grd_PayRate * Grd_Population) + " shillings";
+        } else if (Day % Grd_PayDay == 2) {
+            SummaryScreenText = (SummaryScreenText) + "IN 1 DAYS";
+        } else if (Day % Grd_PayDay == 1) {
+            SummaryScreenText = (SummaryScreenText) + "IN 2 DAYS";
+        }
+
+
+
         Money += (Pst_TaxRate * Pst_Population);
 
         if (Day % Grd_PayDay == 0) {
             Money -= (Grd_PayRate * Grd_Population);
         }
+
+        ShowSummaryMenu = true;
     }
 
     public void CreateCardPool()
@@ -192,49 +259,64 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void Option1_Pressed()
+    public void Option_Pressed(int Number)
     {
-        Debug.Log("Option 1 Pressed");
-        for (int i = 0; i < Choice1_Effects.Count; i++) {
-            if (Random.Range(0, 100) <= Choice1_Effects[i][2]) {
-                switch (Choice1_Effects[i][0]) {
-                    case 1.1f: 
-                        Pst_Population += Choice1_Effects[i][1];
-                        Debug.Log((Choice1_Effects[i][1]) + " Peasant Population");
-                        break;
-                    case 1.2f: 
-                        Pst_Happiness += Choice1_Effects[i][1];
-                        Debug.Log((Choice1_Effects[i][1]) + " Peasant Happiness");
-                       break;
-                    case 4.1f: // Money
-                        Money += Choice1_Effects[i][1];
-                        Debug.Log((Choice1_Effects[i][1]) + " Money");
-                       break;
-                    default:
-                        break;
-            }
-            }
+        Debug.Log("Option " + Number + " Pressed");
+        
+        switch (Number) {
+            case 1:
+                OptionChosen = Choice1_Effects;
+                break;
+            case 2:
+                OptionChosen = Choice2_Effects;
+                break;
+            default:
+                OptionChosen = Choice1_Effects;
+                break;
         }
-        HideCard();
-    }
-
-    public void Option2_Pressed()
-    {
-        Debug.Log("Option 2 Pressed");
-        for (int i = 0; i < Choice2_Effects.Count; i++) {
-            if (Random.Range(0f, 100f) <= Choice2_Effects[i][2]) {
-                switch (Choice2_Effects[i][0]) {
+        
+        for (int i = 0; i < OptionChosen.Count; i++) {
+            if (Random.Range(0, 100) <= OptionChosen[i][2]) {
+                switch (OptionChosen[i][0]) {
                     case 1.1f: // Peasant Population
-                        Pst_Population += Choice2_Effects[i][1];
-                        Debug.Log(Choice2_Effects[i][1] + " Peasant Population");
+                        Pst_Population += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Peasant Population");
                         break;
                     case 1.2f: // Peasant Happiness
-                        Pst_Happiness += Choice2_Effects[i][1];
-                        Debug.Log(Choice2_Effects[i][1] + " Peasant Happiness");
-                       break;
+                        Pst_Happiness += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Peasant Happiness");
+                        break;
+                    case 1.3f: // Peasant Pop Gain Rate
+                        Pst_PopGainRate += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Peasant Pop Gain Rate");
+                        break;
+                    case 1.4f: // Peasant Tax Rate
+                        Pst_TaxRate += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Peasant Tax Rate");
+                        break;
+                    case 2.1f: // Guard Population
+                        Grd_Population += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Guard Population");
+                        break;
+                    case 2.2f: // Guard Happiness
+                        Grd_Happiness += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Guard Happiness");
+                        break;
+                    case 2.3f: // Guard Pay Rate
+                        Grd_PayRate += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Guard Pay Rate");
+                        break;
+                    case 3.1f: // Thieves Population
+                        Thf_Population += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Thieves Population");
+                        break;
+                    case 3.2f: // Thieves Happiness
+                        Thf_Happiness += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Thieves Happiness");
+                        break;
                     case 4.1f: // Money
-                        Money += Choice2_Effects[i][1];
-                        Debug.Log(Choice2_Effects[i][1] + " Money");
+                        Money += OptionChosen[i][1];
+                        Debug.Log((OptionChosen[i][1]) + " Money");
                        break;
                     default:
                         break;
@@ -243,8 +325,6 @@ public class GameManager : MonoBehaviour
         }
         HideCard();
     }
-
-
 
     public void SetCard(int CardID)
     {
