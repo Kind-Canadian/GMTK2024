@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
     public TMP_Text Thf_HappinessText;
 
     public TMP_Text SummaryTextObject;
+    public TMP_Text SummaryButtonText;
 
     public int Day = 0;
 
@@ -76,6 +77,9 @@ public class GameManager : MonoBehaviour
     public float CardsPickedUp;
 
     public string KingdomName = "KINGDOM_NAME";
+
+    public int DelayType;
+    public int SummaryScreenType;
 
 
     // Start is called before the first frame update
@@ -117,10 +121,25 @@ public class GameManager : MonoBehaviour
         }
 
         if (CardDelay >= 1) {
-            if (DailyCards <= CardsUsed) {
-                DayEnd();
-            } else {
-                ShowCard();
+            switch (DelayType) {
+                case 0: // Card
+                    if (DailyCards <= CardsUsed) {
+                        DayEnd();
+                    } else {
+                        ShowCard();
+                    }
+                    break;
+                case 1: // Summary
+                    DayStart();
+                    break;
+                case 2: // Day Start
+                    ShowCard();
+                    break;
+                case 3: // First Day
+                    ShowCard();
+                    break;
+                default:
+                    break;
             }
             CardDelay = -1;
         }
@@ -140,6 +159,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ShowMessage()
+    {
+            SetCard(CardPool[-1]);
+            MainTextObject.text = MainText;
+            Choice1_TextObject.text = Choice1_Text;
+            Choice2_TextObject.text = Choice2_Text;
+            ShowCardMenu = true;
+    }
+
     public void ShowCard()
     {
         if (CardPool.Count != 0) {
@@ -149,7 +177,6 @@ public class GameManager : MonoBehaviour
             Choice2_TextObject.text = Choice2_Text;
             ShowCardMenu = true;
         }
-
     }
     
     public void HideCard()
@@ -157,26 +184,68 @@ public class GameManager : MonoBehaviour
         CardPool.RemoveAt(0);
         CardsUsed += 1;
         ShowCardMenu = false;
+        DelayType = 0;
         CardDelay = 0;
+    }
+
+    public void CloseSummary()
+    {
+        if (SummaryScreenType == 1) {
+            DelayType = 1;
+            CardDelay = 0;
+        }
+
+        if (SummaryScreenType == 2) {
+            DelayType = 0;
+            CardDelay = 0;
+        }
+
+        if (SummaryScreenType == 3) {
+            DelayType = 0;
+            CardDelay = 0;
+        }
+
+        ShowSummaryMenu = false;
+
     }
 
     public void DayStart() 
     {
+        CardsUsed = 0;
+        CreateCardPool();
+
         if (Day != 0) {
+
+            SummaryScreenText = "While you were asleep...<br>";
+
+            // If unhappy enough (below 30), make less peasants come every day
+            if (Pst_Happiness <= 30) {
+                Pst_Population += Pst_PopGainRate * (Pst_Happiness/30);
+                SummaryScreenText = SummaryScreenText + "<br>   - " +
+                "Very few Peasants decided to move to your kingdom";
+            } else {
+                Pst_Population += Pst_PopGainRate;
+                SummaryScreenText = SummaryScreenText + "<br>   - " +
+                "Some Peasants decided to move to your kingdom";
+            }
 
             // If unhappy enough (below 50), make peasant population move to thieves
             if (Pst_Happiness <= 50) {
                 Pst_Population -= Pst_Population * 0.25f * (Pst_Happiness/50);
                 Thf_Population += Pst_Population * 0.25f * (Pst_Happiness/50);
+                SummaryScreenText = SummaryScreenText + "<br>- " +
+                "Some Peasants got angry and moved to the Thieves village!";
             }
 
-            // If unhappy enough (below 30), make less peasants come every day
-            if (Pst_Happiness <= 30) {
-                Pst_Population += Pst_PopGainRate * (Pst_Happiness/30);
-            } else {
-                Pst_Population += Pst_PopGainRate;
-            }
+            SummaryButtonText.text = "Start Day<br>--->";
+            SummaryScreenType = 2;
+            ShowSummaryMenu = true;
             
+        } else {
+            SummaryScreenText = "uhhh something something tutorial here";
+            SummaryButtonText.text = "Start Day<br>--->";
+            SummaryScreenType = 3;
+            ShowSummaryMenu = true;
         }
 
             Prev_Pst_Population = Pst_Population;
@@ -187,13 +256,13 @@ public class GameManager : MonoBehaviour
             Prev_Thf_Happiness = Thf_Happiness;
             Prev_Money = Money;
 
-        CardsUsed = 0;
-        CreateCardPool();
-        SetCard(0);
-        ShowCard();
+        
+
+        
+
         Day += 1;
 
-        ShowSummaryMenu = false;
+        
     }
 
     public void DayEnd() 
@@ -236,6 +305,10 @@ public class GameManager : MonoBehaviour
             Money -= (Grd_PayRate * Grd_Population);
         }
 
+        SummaryButtonText.text = "Go To Sleep";
+        SummaryScreenType = 1;
+        DelayType = 1;
+        CardDelay = 0;
         ShowSummaryMenu = true;
     }
 
