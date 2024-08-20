@@ -21,6 +21,6 @@ public class SceneSwap : MonoBehaviour
         Debug.Log("SceneSwapped!");
         //Needs to be activated once the correct scene has be finished. 
         //Just place the scene name where it says "SceneName"
-        //SceneManager.LoadScene(sceneName: "SceneName");
+        SceneManager.LoadScene(1);
     }
 }
