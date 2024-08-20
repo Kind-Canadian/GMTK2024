@@ -1455,6 +1455,7 @@ MonoBehaviour:
   Thf_PopulationText: {fileID: 4800637816869090277}
   Thf_HappinessText: {fileID: 7427750057419642616}
   SummaryTextObject: {fileID: 6199540703476933923}
+  SummaryButtonText: {fileID: 7861992897177923684}
   Day: 0
   CardMenuObject: {fileID: 2213169547588852698}
   ShowCardMenu: 0
@@ -1465,6 +1466,8 @@ MonoBehaviour:
   CardDelay: -1
   CardsPickedUp: 0
   KingdomName: Shitsenburg
+  DelayType: 0
+  SummaryScreenType: 0
 --- !u!1 &4275338482163488827
 GameObject:
   m_ObjectHideFlags: 0
@@ -1651,7 +1654,7 @@ GameObject:
   - component: {fileID: 5946796776685651282}
   - component: {fileID: 7112481446705386909}
   m_Layer: 6
-  m_Name: Basic Sign (1)
+  m_Name: NextDayImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1967,7 +1970,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 3657503938811935372}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: DayStart
+        m_MethodName: CloseSummary
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2393,8 +2396,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8.1, y: -15}
-  m_SizeDelta: {x: 430, y: 630}
+  m_AnchoredPosition: {x: -0, y: -15}
+  m_SizeDelta: {x: 400, y: 630}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9020419202960953957
 CanvasRenderer:
@@ -2455,14 +2458,14 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294967295
   m_fontSize: 26.55
-  m_fontSizeBase: 30
+  m_fontSizeBase: 27
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMin: 0
+  m_fontSizeMax: 27
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_HorizontalAlignment: 8
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
