@@ -1336,6 +1336,7 @@ RectTransform:
   - {fileID: 3274638862272150261}
   - {fileID: 7550853035609705883}
   - {fileID: 8298022921886834069}
+  - {fileID: 4792613552741710505}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1443,7 +1444,7 @@ MonoBehaviour:
   SummaryScreenText: 
   CardNumber: 0
   CardsUsed: 0
-  DailyCards: 20
+  DailyCards: 5
   MainTextObject: {fileID: 3299503209691875771}
   Choice1_TextObject: {fileID: 1911791195443608472}
   Choice2_TextObject: {fileID: 4409291520343551923}
@@ -1456,7 +1457,9 @@ MonoBehaviour:
   Thf_HappinessText: {fileID: 7427750057419642616}
   SummaryTextObject: {fileID: 6199540703476933923}
   SummaryButtonText: {fileID: 7861992897177923684}
-  Day: 0
+  BlackFade: {fileID: 8380604255750057529}
+  DoFade: 0
+  Day: 1
   CardMenuObject: {fileID: 2213169547588852698}
   ShowCardMenu: 0
   SummaryMenuObject: {fileID: 6264424791624522823}
@@ -1464,6 +1467,7 @@ MonoBehaviour:
   CardPool: 
   PosibleCards: 
   CardDelay: -1
+  DidLoseCheck: 0
   CardsPickedUp: 0
   KingdomName: Shitsenburg
   DelayType: 0
@@ -2839,6 +2843,81 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &7552813665121002970
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4792613552741710505}
+  - component: {fileID: 3115266990820747354}
+  - component: {fileID: 8380604255750057529}
+  m_Layer: 0
+  m_Name: Dark Fade
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4792613552741710505
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7552813665121002970}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2420228676614744263}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 2000, y: 1000}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &3115266990820747354
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7552813665121002970}
+  m_CullTransparentMesh: 1
+--- !u!114 &8380604255750057529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7552813665121002970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &7625224202383251724
 GameObject:
   m_ObjectHideFlags: 0

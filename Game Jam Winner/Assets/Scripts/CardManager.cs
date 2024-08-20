@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -55,8 +57,12 @@ public class GameManager : MonoBehaviour
 
     public TMP_Text SummaryTextObject;
     public TMP_Text SummaryButtonText;
+    public Image BlackFade;
+    public bool DoFade = false;
 
-    public int Day = 0;
+    public int Day = 1;
+
+    public int GuardUnpaid = 0;
 
     public List<float[]> OptionChosen;
 
@@ -72,6 +78,7 @@ public class GameManager : MonoBehaviour
     public List<int> PosibleCards;
 
     public float CardDelay = -1;
+    public bool DidLoseCheck = false;
 
     private int CardsPerDay;
     public float CardsPickedUp;
@@ -80,11 +87,8 @@ public class GameManager : MonoBehaviour
 
     public int DelayType;
     public int SummaryScreenType;
+    public bool SummaryUp = false;
 
-
-    // Start is called before the first frame update
-    
-    
     
     
     void Start()
@@ -105,11 +109,11 @@ public class GameManager : MonoBehaviour
         MoneyText.text = ((Mathf.Round(MoneyDisplay)) + " Shillings");
         SummaryTextObject.text = (SummaryScreenText);
 
-        Pst_PopulationText.text = "Peasant Population: " + (Pst_Population);
+        Pst_PopulationText.text = "Peasants<br>Population: " + (Pst_Population);
         Pst_HappinessText.text = "Peasant Happiness: " + (Pst_Happiness);
-        Grd_PopulationText.text = "Guard Popluation: " + (Grd_Population);
+        Grd_PopulationText.text = "Guards<br>Popluation: " + (Grd_Population);
         Grd_HappinessText.text = "Guard Happiness: " + (Grd_Happiness);
-        Thf_PopulationText.text = "Thieves Population: " + (Thf_Population);
+        Thf_PopulationText.text = "Thieves<br>Population: " + (Thf_Population);
         Thf_HappinessText.text = "Thieves Happiness: " + (Thf_Happiness); 
 
         if (Money < 0) { 
@@ -117,7 +121,17 @@ public class GameManager : MonoBehaviour
         }
 
         if (CardDelay < 1 && CardDelay >= 0) {
-            CardDelay += Time.deltaTime;
+            if (DoFade) {
+                CardDelay += Time.deltaTime / 6f;
+                if (DelayType == 1 && CardDelay >= 0.5f && !DidLoseCheck) {
+                    LoseCheck();
+                    Day += 1;
+                    CardsUsed = 0;
+                    Debug.Log("did the thing");
+                }
+            } else {
+                CardDelay += Time.deltaTime * 1.5f;
+            }
         }
 
         if (CardDelay >= 1) {
@@ -131,6 +145,7 @@ public class GameManager : MonoBehaviour
                     break;
                 case 1: // Summary
                     DayStart();
+                    SummaryUp = false;
                     break;
                 case 2: // Day Start
                     ShowCard();
@@ -141,7 +156,14 @@ public class GameManager : MonoBehaviour
                 default:
                     break;
             }
+            DoFade = false;
             CardDelay = -1;
+        }
+
+        if (DoFade) {
+            BlackFade.color = new Color(BlackFade.color.r,BlackFade.color.g,BlackFade.color.b,(Mathf.Sin(CardDelay*3.14f)));
+        } else {
+            BlackFade.color = new Color(BlackFade.color.r,BlackFade.color.g,BlackFade.color.b,0);
         }
 
         if (Money > MoneyDisplay) {
@@ -157,6 +179,20 @@ public class GameManager : MonoBehaviour
                 MoneyDisplay = Money;
             }
         }
+
+        if (Pst_Population < 0) { Pst_Population = 0; }
+        if (Pst_Happiness < 0) { Pst_Happiness = 0; }
+        if (Pst_Happiness > 100) { Pst_Happiness = 100; }
+
+        if (Grd_Population < 0) { Grd_Population = 0; }
+        if (Grd_Happiness < 0) { Grd_Happiness = 0; }
+        if (Grd_Happiness > 100) { Grd_Happiness = 100; }
+
+        if (Thf_Population < 0) { Thf_Population = 0; }
+        if (Thf_Happiness < 0) { Thf_Happiness = 0; }
+        if (Thf_Happiness > 100) { Thf_Happiness = 100; }
+
+
     }
 
     public void ShowMessage()
@@ -193,6 +229,8 @@ public class GameManager : MonoBehaviour
         if (SummaryScreenType == 1) {
             DelayType = 1;
             CardDelay = 0;
+            DidLoseCheck = false;
+            DoFade = true;
         }
 
         if (SummaryScreenType == 2) {
@@ -211,31 +249,74 @@ public class GameManager : MonoBehaviour
 
     public void DayStart() 
     {
-        CardsUsed = 0;
+        
         CreateCardPool();
 
-        if (Day != 0) {
+        if (Day != 1) {
 
             SummaryScreenText = "While you were asleep...<br>";
 
             // If unhappy enough (below 30), make less peasants come every day
             if (Pst_Happiness <= 30) {
-                Pst_Population += Pst_PopGainRate * (Pst_Happiness/30);
+                Pst_Population += Mathf.Round(Pst_PopGainRate * (Pst_Happiness/30));
                 SummaryScreenText = SummaryScreenText + "<br>   - " +
-                "Very few Peasants decided to move to your kingdom";
-            } else {
+                "Very few Peasants decided to move to your kingdom <br>";
+            } else if (Pst_Happiness == 0){
                 Pst_Population += Pst_PopGainRate;
                 SummaryScreenText = SummaryScreenText + "<br>   - " +
-                "Some Peasants decided to move to your kingdom";
+                "Some Peasants decided to move to your kingdom <br>";
+            } else {
+                SummaryScreenText = SummaryScreenText + "<br>   - " +
+                "No Peasants decided to move to your kingdom <br>";
+            }
+
+            // If unhappy enough (below 20), make thieves attempt to take over the castle
+            if (Thf_Happiness <= 20) {
+                Grd_Population -= Mathf.Floor(Thf_Population / 5);
+                Thf_Population -= Mathf.Floor(Thf_Population / 5);
+                SummaryScreenText = SummaryScreenText + "<br>   - " +
+                "The Thieves attempted to take over the castle! Your Guards defended but you lost a few of them. <br>";
             }
 
             // If unhappy enough (below 50), make peasant population move to thieves
             if (Pst_Happiness <= 50) {
-                Pst_Population -= Pst_Population * 0.25f * (Pst_Happiness/50);
-                Thf_Population += Pst_Population * 0.25f * (Pst_Happiness/50);
-                SummaryScreenText = SummaryScreenText + "<br>- " +
-                "Some Peasants got angry and moved to the Thieves village!";
+                Thf_Population += Mathf.Round(Pst_Population * 0.25f * (1 - Pst_Happiness/50));
+                Pst_Population -= Mathf.Round(Pst_Population * 0.25f * (1 - Pst_Happiness/50));
+                SummaryScreenText = SummaryScreenText + "<br>   - " +
+                "Some Peasants got angry and moved to the Thieves village! <br>";
             }
+
+            // If underpaid, make guards angry, or really angry if unhappy
+            if (GuardUnpaid == 1) {
+                if (Grd_Happiness <= 30) {
+                    Grd_Population -= Mathf.Round(Grd_Population * 0.1f);
+                    Grd_Happiness -= Mathf.Round(15);
+                    SummaryScreenText = SummaryScreenText + "<br>   - " +
+                    "The guards became unhappy as they were under paid. <br>";
+                    SummaryScreenText = SummaryScreenText + "<br>   - " +
+                    "Some guards decided to quit as they were under paid! <br>";
+                } else {
+                    Grd_Happiness -= Mathf.Round(15);
+                    SummaryScreenText = SummaryScreenText + "<br>   - " +
+                    "The guards became unhappy as they were under paid. <br>";
+                }
+                GuardUnpaid = 0;
+            }
+
+            // If unpaid, make guards extra angry
+            if (GuardUnpaid == 2) {
+                Grd_Population -= Mathf.Round(Grd_Population * 0.1f);
+                Grd_Happiness -= Mathf.Round(25);
+                SummaryScreenText = SummaryScreenText + "<br>   - " +
+                "The guards became unhappy as they weren't paid. <br>";
+                SummaryScreenText = SummaryScreenText + "<br>   - " +
+                "Some guards decided to quit as they weren't paid! <br>";
+                GuardUnpaid = 0;
+            }
+
+
+
+            
 
             SummaryButtonText.text = "Start Day<br>--->";
             SummaryScreenType = 2;
@@ -255,13 +336,6 @@ public class GameManager : MonoBehaviour
             Prev_Thf_Population = Thf_Population;
             Prev_Thf_Happiness = Thf_Happiness;
             Prev_Money = Money;
-
-        
-
-        
-
-        Day += 1;
-
         
     }
 
@@ -302,6 +376,14 @@ public class GameManager : MonoBehaviour
         Money += (Pst_TaxRate * Pst_Population);
 
         if (Day % Grd_PayDay == 0) {
+            if (Money >= Grd_PayRate) {
+                GuardUnpaid = 0;
+            } else if (Money > Grd_PayRate/8) {
+                GuardUnpaid = 1;
+            } else {
+                GuardUnpaid = 2;
+            }
+
             Money -= (Grd_PayRate * Grd_Population);
         }
 
@@ -309,7 +391,27 @@ public class GameManager : MonoBehaviour
         SummaryScreenType = 1;
         DelayType = 1;
         CardDelay = 0;
+        SummaryUp = true;
         ShowSummaryMenu = true;
+    }
+
+    public void LoseCheck()
+    {
+        if (Grd_Happiness <= 10 && Grd_Population >= 20) {
+            LoseGame();
+        }
+
+        if (Thf_Happiness <= 80 && (Grd_Population * 2) <= Thf_Population && Thf_Population > 10) {
+            LoseGame();
+        }
+
+        DidLoseCheck = true;
+    }
+
+    public void LoseGame()
+    {
+        //SceneManager.LoadScene();
+        Debug.Log("Loaded Death Scene");
     }
 
     public void CreateCardPool()
