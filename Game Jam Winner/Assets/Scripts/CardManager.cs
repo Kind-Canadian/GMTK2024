@@ -146,7 +146,6 @@ public class GameManager : MonoBehaviour
                     break;
                 case 1: // Summary
                     DayStart();
-                    SummaryUp = false;
                     break;
                 case 2: // Day Start
                     ShowCard();
@@ -240,6 +239,7 @@ public class GameManager : MonoBehaviour
         if (SummaryScreenType == 2) {
             DelayType = 0;
             CardDelay = 0;
+            SummaryUp = false;
         }
 
         if (SummaryScreenType == 3) {
@@ -419,7 +419,7 @@ public class GameManager : MonoBehaviour
 
     public void LoseCheck()
     {
-        if (Grd_Happiness <= 10 && Grd_Population >= 20) {
+        if (Grd_Happiness <= 10 && Grd_Population >= 15) {
             LoseGame();
         }
 
@@ -432,8 +432,10 @@ public class GameManager : MonoBehaviour
 
     public void LoseGame()
     {
-        SceneManager.LoadScene(2);
+        Info.days = Day;
         Debug.Log("Loaded Death Scene");
+        SceneManager.LoadScene(2);
+        
 
     }
 

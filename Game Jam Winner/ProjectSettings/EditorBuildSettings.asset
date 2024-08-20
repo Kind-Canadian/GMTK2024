@@ -6,12 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/TheMainMenu.unity
-    guid: bd7f2356bb5156846bb67c848c3a8315
+    path: Assets/Scenes/BetterMainMenu.unity
+    guid: 8656e605f4769f54fa3fc25ed5236c80
   - enabled: 1
-    path: Assets/Scenes/Game V4.unity
-    guid: a000514974bf3f74c851eba1e4e2f7cf
+    path: Assets/Scenes/Game V6.unity
+    guid: 68b337aaf69511645b5f89c2fc644189
   - enabled: 1
-    path: Assets/Scenes/TheGameOver.unity
-    guid: 98893de17fd72b74ea7c86f8709e27bf
+    path: Assets/Scenes/SwaggerLose.unity
+    guid: 8f4c29257e6ca414dacdf4415ee681ee
   m_configObjects: {}
