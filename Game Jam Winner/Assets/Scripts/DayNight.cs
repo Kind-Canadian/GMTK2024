@@ -13,8 +13,8 @@ public class NewBehaviourScript : MonoBehaviour
     private Light sunlight;
     private bool lighton = true;
     private Quaternion origin;
-    private int prevcardcount = 0;
-    private int prevdaycount = 0;
+    public int prevcardcount = 0;
+    public int prevdaycount = 0;
     public float DayEasing;
     
     // Start is called before the first frame update
