@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     public float Pst_Population = 75; // ID = 1.1
     public float Pst_Happiness = 80; // ID = 1.2
     public float Pst_PopGainRate = 10; // ID = 1.3
-    public float Pst_TaxRate = 0.5f; // ID = 1.4
+    public float Pst_TaxRate = 0.25f; // ID = 1.4
     
     public float Grd_Population = 15; // ID = 2.1
     public float Grd_Happiness  = 80; // ID = 2.2
@@ -55,6 +55,8 @@ public class GameManager : MonoBehaviour
     public TMP_Text Grd_HappinessText;
     public TMP_Text Thf_PopulationText;
     public TMP_Text Thf_HappinessText;
+    public TMP_Text GuardPayText;
+    public TMP_Text DayText;
 
     public TMP_Text SummaryTextObject;
     public TMP_Text SummaryButtonText;
@@ -88,9 +90,14 @@ public class GameManager : MonoBehaviour
 
     public int DelayType;
     public int SummaryScreenType;
-    public bool SummaryUp = false;
+    public bool SummaryUp = true;
 
-    
+    public AudioClip SoundMoneyGain;
+    public AudioClip SoundMoneyLose;
+    public AudioClip SoundPageFlip;
+    public AudioClip SoundCardPlace;
+    public AudioClip SoundWakeHorn;
+    public AudioClip SoundWarCry;
     
     void Start()
     {
@@ -100,6 +107,9 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        GuardPayText.text = "Guard Wage: " + Grd_PayRate + " shillings per guard";
+        DayText.text = "Day: " + Day;
+
         if (Input.GetKeyDown(KeyCode.Space)) { 
             DayStart();
         }
@@ -129,6 +139,10 @@ public class GameManager : MonoBehaviour
                     Day += 1;
                     CardsUsed = 0;
                     Debug.Log("did the thing");
+                    AudioSource.PlayClipAtPoint(SoundWakeHorn, new Vector3(80f, 0f, -4.8f), 0.5f);
+                    if (Thf_Happiness <= 20 && Thf_Population >= 10) {
+                        AudioSource.PlayClipAtPoint(SoundWarCry, new Vector3(80f, 0f, -4.8f), 0.25f);
+                    }
                 }
             } else {
                 CardDelay += Time.deltaTime * 1.5f;
@@ -139,12 +153,14 @@ public class GameManager : MonoBehaviour
             switch (DelayType) {
                 case 0: // Card
                     if (DailyCards <= CardsUsed) {
+                        AudioSource.PlayClipAtPoint(SoundCardPlace, new Vector3(80f, 0f, -4.8f), 0.5f);
                         DayEnd();
                     } else {
                         ShowCard();
                     }
                     break;
                 case 1: // Summary
+                    AudioSource.PlayClipAtPoint(SoundCardPlace, new Vector3(80f, 0f, -4.8f), 0.5f);
                     DayStart();
                     break;
                 case 2: // Day Start
@@ -171,6 +187,7 @@ public class GameManager : MonoBehaviour
             if (Time.deltaTime * 30 > (Money - MoneyDisplay)) {
                 MoneyDisplay = Money;
             }
+            AudioSource.PlayClipAtPoint(SoundMoneyGain, new Vector3(80f, 0f, -4.8f), 0.1f);
             //Debug.Log("Display Money Increased By: " + (Time.deltaTime * 30));
         }
 
@@ -179,6 +196,7 @@ public class GameManager : MonoBehaviour
             if (Time.deltaTime * 30 > (MoneyDisplay - Money)) {
                 MoneyDisplay = Money;
             }
+            AudioSource.PlayClipAtPoint(SoundMoneyLose, new Vector3(80f, 0f, -4.8f), 0.1f);
             //Debug.Log("Display Money Decreased By: -" + (Time.deltaTime * 30));
         }
 
@@ -214,6 +232,7 @@ public class GameManager : MonoBehaviour
             Choice1_TextObject.text = Choice1_Text;
             Choice2_TextObject.text = Choice2_Text;
             ShowCardMenu = true;
+            AudioSource.PlayClipAtPoint(SoundCardPlace, new Vector3(80f, 0f, -4.8f), 0.5f);
         }
     }
     
@@ -225,6 +244,7 @@ public class GameManager : MonoBehaviour
         DelayType = 0;
         CardDelay = 0;
         Debug.Log("Card Hidden (Cards Used +1)");
+        AudioSource.PlayClipAtPoint(SoundPageFlip, new Vector3(80f, 0f, -4.8f), 0.25f);
     }
 
     public void CloseSummary()
@@ -245,8 +265,10 @@ public class GameManager : MonoBehaviour
         if (SummaryScreenType == 3) {
             DelayType = 0;
             CardDelay = 0;
+            SummaryUp = false;
         }
 
+        AudioSource.PlayClipAtPoint(SoundPageFlip, new Vector3(80f, 0f, -4.8f), 0.25f);
         ShowSummaryMenu = false;
 
     }
@@ -275,7 +297,7 @@ public class GameManager : MonoBehaviour
             }
 
             // If unhappy enough (below 20), make thieves attempt to take over the castle
-            if (Thf_Happiness <= 20) {
+            if (Thf_Happiness <= 20 && Thf_Population >= 10) {
                 Grd_Population -= Mathf.Floor(Thf_Population / 5);
                 Thf_Population -= Mathf.Floor(Thf_Population / 5);
                 SummaryScreenText = SummaryScreenText + "<br>   - " +
@@ -294,13 +316,13 @@ public class GameManager : MonoBehaviour
             if (GuardUnpaid == 1) {
                 if (Grd_Happiness <= 30) {
                     Grd_Population -= Mathf.Round(Grd_Population * 0.1f);
-                    Grd_Happiness -= Mathf.Round(15);
+                    Grd_Happiness -= Mathf.Round(30);
                     SummaryScreenText = SummaryScreenText + "<br>   - " +
                     "The guards became unhappy as they were under paid. <br>";
                     SummaryScreenText = SummaryScreenText + "<br>   - " +
                     "Some guards decided to quit as they were under paid! <br>";
                 } else {
-                    Grd_Happiness -= Mathf.Round(15);
+                    Grd_Happiness -= Mathf.Round(30);
                     SummaryScreenText = SummaryScreenText + "<br>   - " +
                     "The guards became unhappy as they were under paid. <br>";
                 }
@@ -310,12 +332,20 @@ public class GameManager : MonoBehaviour
             // If unpaid, make guards extra angry
             if (GuardUnpaid == 2) {
                 Grd_Population -= Mathf.Round(Grd_Population * 0.1f);
-                Grd_Happiness -= Mathf.Round(25);
+                Grd_Happiness -= Mathf.Round(50);
                 SummaryScreenText = SummaryScreenText + "<br>   - " +
                 "The guards became unhappy as they weren't paid. <br>";
                 SummaryScreenText = SummaryScreenText + "<br>   - " +
                 "Some guards decided to quit as they weren't paid! <br>";
                 GuardUnpaid = 0;
+            }
+
+            // 
+            if (Random.Range(0,100) <= 15 && Grd_Population*3 >= Thf_Population) {
+                Thf_Population += Mathf.Round(Random.Range(8,16));
+                Thf_Happiness += Mathf.Round(25);
+                SummaryScreenText = SummaryScreenText + "<br>   - " +
+                "A group of Thieves snuck their way into the kingdom <br>";
             }
 
 
@@ -420,10 +450,12 @@ public class GameManager : MonoBehaviour
     public void LoseCheck()
     {
         if (Grd_Happiness <= 10 && Grd_Population >= 15) {
+            Info.deathmessage = "The Guards decided you weren't quite fit to be king.";
             LoseGame();
         }
 
         if (Thf_Happiness <= 80 && (Grd_Population * 2) <= Thf_Population && Thf_Population > 10) {
+            Info.deathmessage = "The Thieves overpowered the guards and took over the kingdom";
             LoseGame();
         }
 
@@ -459,6 +491,7 @@ public class GameManager : MonoBehaviour
         for (int f = 0; f < OptionChosen.Count; f++) {
             if ((OptionChosen[f][0] == 4.1f) && (-OptionChosen[f][1] > Money)) {
                 Debug.Log("Not Enough Money");
+                AudioSource.PlayClipAtPoint(SoundMoneyLose, new Vector3(80f, 0f, -4.8f), 0.5f);
                 return;
             }
         }
@@ -526,6 +559,22 @@ public class GameManager : MonoBehaviour
         PosibleCards.Add(8);
         PosibleCards.Add(9);
         PosibleCards.Add(12);
+        PosibleCards.Add(14);
+        PosibleCards.Add(15);
+        PosibleCards.Add(17);
+        PosibleCards.Add(18);
+        PosibleCards.Add(19);
+        PosibleCards.Add(20);
+        PosibleCards.Add(22);
+        PosibleCards.Add(23);
+        PosibleCards.Add(24);
+        PosibleCards.Add(25);
+        PosibleCards.Add(26);
+        PosibleCards.Add(27);
+        PosibleCards.Add(28);
+        PosibleCards.Add(29);
+        PosibleCards.Add(30);
+        PosibleCards.Add(31);
 
         if (Pst_Happiness >= 80) {
             PosibleCards.Add(10);
@@ -537,6 +586,14 @@ public class GameManager : MonoBehaviour
 
         if (Grd_Happiness >= 80) {
             PosibleCards.Add(13);
+        }
+
+        if (Grd_Happiness >= 80 && Grd_Population >= 20) {
+            PosibleCards.Add(21);
+        }
+
+        if (Pst_Happiness <= 50) {
+            PosibleCards.Add(16);
         }
 
 
@@ -592,14 +649,14 @@ public class GameManager : MonoBehaviour
                 break;
             case 4: // Peasants request tools
                 MainText = 
-                "On behalf of the peasants here in " + KingdomName + ", we request a payment of 40 shillings to spend on better pitchforks for the workers " + 
+                "On behalf of the peasants here in " + KingdomName + ", we request a payment of 20 shillings to spend on better pitchforks for the workers " + 
                 "as the old ones have gotten quite rusted and broken.";
                 // Choice 1 - Give
                 Choice1_Text = "Better tools mean better working peasants!";
-                Choice1_Effects.Add(new float[] {4.1f, -40, 100}); // Money
+                Choice1_Effects.Add(new float[] {4.1f, -20, 100}); // Money
                 Choice1_Effects.Add(new float[] {1.2f, 5, 100}); // Peasant Happiness
                 // Choice 2 - Reject
-                Choice2_Text = "Only a poor workman always blames his tools";
+                Choice2_Text = "Only a poor workman blames his tools";
                 Choice2_Effects.Add(new float[] {1.2f, -5, 100}); // Peasant Happiness
                 break;
             case 5: // Stuelenfrothian prince
@@ -621,7 +678,7 @@ public class GameManager : MonoBehaviour
                 "and cannons?";
                 // Choice 1 - 
                 Choice1_Text = "Well of course!";
-                Choice1_Effects.Add(new float[] {4.1f, -30, 100});
+                Choice1_Effects.Add(new float[] {4.1f, -25, 100});
                 Choice1_Effects.Add(new float[] {2.2f, 5, 100});
                 // Choice 2 - 
                 Choice2_Text = "Those swords are good enough.";
@@ -647,8 +704,8 @@ public class GameManager : MonoBehaviour
             case 8: // Kevith
                 MainText = // the three lines below are just for text (use <br> for line break), put in the " "
                 " My Liege," +  
-                "<br> Our patrol found a knight from a neighbouring kingdom named Kevinth " +
-                "<br> May we add him to our ranks?";
+                "<br>Our patrol found a knight from a neighbouring kingdom named Kevinth " +
+                "<br>May we add him to our ranks?";
                 // Choice 1 - // (this is just a comment)
                 Choice1_Text = "The more the merrier "; // Text for option 1
                 Choice1_Effects.Add(new float[] {2.1f, 1, 100});
@@ -660,7 +717,7 @@ public class GameManager : MonoBehaviour
             case 9: // Lollipop
                 MainText = // the three lines below are just for text (use <br> for line break), put in the " "
                 "My mother wouldn’t get me a lollipop! " +  
-                "<br> Could I please, please, PLEASE get one!!!" +
+                "<br>Could I please, please, PLEASE get one!!!" +
                 " ";
                 // Choice 1 - // (this is just a comment)
                 Choice1_Text = "Oh, well how could I say no!"; // Text for option 1
@@ -700,16 +757,16 @@ public class GameManager : MonoBehaviour
             case 12: // Theatre in town
                 MainText = // the three lines below are just for text (use <br> for line break), put in the " "
                 "Would you like to host a theatre play in our town?" +  
-                "<br>It will only cost about 60 shillings to host and will most likely bring new people into town!" +
+                "<br>It will only cost about 50 shillings to host and will most likely bring new people into town!" +
                 " ";
                 // Choice 1 - // (this is just a comment)
                 Choice1_Text = "I hope it’s a comedy!"; // Text for option 1
-                Choice1_Effects.Add(new float[] {4.1f, -60, 100});
+                Choice1_Effects.Add(new float[] {4.1f, -50, 100});
                 Choice1_Effects.Add(new float[] {1.1f, 10, 100});
                 Choice1_Effects.Add(new float[] {1.2f, 10, 100});
                 // Choice 2 - // (this is just a comment)
                 Choice2_Text = "I hate plays."; // Text for option 2
-                Choice2_Effects.Add(new float[] {1.2f, -5, 100}); 
+                Choice2_Effects.Add(new float[] {1.2f, -2, 100}); 
                 Choice2_Effects.Add(new float[] {3.2f, 5, 100}); 
                 break; // leave this
             case 13: // Guard abusing power (guards happy)
@@ -728,7 +785,274 @@ public class GameManager : MonoBehaviour
                 Choice2_Effects.Add(new float[] {1.1f, -3, 100}); 
                 Choice2_Effects.Add(new float[] {1.2f, -5, 100}); 
                 break; // leave this
-
+            case 14: // Holy hand grenade
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Sire, " +  
+                " <br> A priest has informed me of a blessed weapon of great power:" +
+                " <br> A holy hand grenade. Might we acquire one? ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = " Tis but a scratch… On the wallet"; // Text for option 1
+                Choice1_Effects.Add(new float[] {2.2f, 40, 100});
+                Choice1_Effects.Add(new float[] {4.1f, -100, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "I FART in your general direction "; // Text for option 2
+                Choice2_Effects.Add(new float[] {2.2f, -1, 100}); 
+                break; // leave this
+            case 15: // Straving family
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "My Family and I are starving. <br>We lack any amount of money to purchase bread." +  
+                " <br> Would you spare some change?" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = " Anything for my people"; // Text for option 1
+                Choice1_Effects.Add(new float[] {4.1f, -10, 100});
+                Choice1_Effects.Add(new float[] {1.2f, 5, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "Work harder "; // Text for option 2
+                Choice2_Effects.Add(new float[] {3.1f, 5, 100}); 
+                Choice2_Effects.Add(new float[] {1.1f, -5, 100}); 
+                Choice2_Effects.Add(new float[] {1.2f, -5, 100}); 
+                break; // leave this
+            case 16: // Angry person (peasants mad)
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Your decisions have been a disaster for the kingdom! " +  
+                " <br> You are nothing but a simpleton! " +
+                "<br> I am leaving! ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "alright "; // Text for option 1
+                Choice1_Effects.Add(new float[] {1.1f, -1, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = " Treason is punishable by death"; // Text for option 2
+                Choice2_Effects.Add(new float[] {1.1f, -1, 100}); 
+                break; // leave this
+            case 17: // Thief hideout
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Your Majesty," +  
+                "<br>We found a thief hideout nearby! Shall we raid it?" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "Get rid of those pests!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {3.1f, -4, 75});
+                Choice1_Effects.Add(new float[] {3.2f, -7, 100});
+                Choice1_Effects.Add(new float[] {2.1f, -2, 50});
+                Choice1_Effects.Add(new float[] {4.1f, 25, 50});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "They aren’t a threat"; // Text for option 2
+                Choice2_Effects.Add(new float[] {3.2f, 10, 75}); 
+                Choice2_Effects.Add(new float[] {1.2f, -5, 40}); 
+                break; // leave this
+            case 18: // Burnt house
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "One of the buildings in the village was burnt down! Would you like to rebuild it?" +  
+                " " +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "Of course"; // Text for option 1
+                Choice1_Effects.Add(new float[] {4.1f, -20, 100});
+                Choice1_Effects.Add(new float[] {1.2f, 8, 100});
+                Choice1_Effects.Add(new float[] {1.1f, -3, 30});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "This isn’t a big issue"; // Text for option 2
+                Choice2_Effects.Add(new float[] {1.2f, -5, 100}); 
+                Choice2_Effects.Add(new float[] {1.1f, -5, 50}); 
+                break; // leave this
+            case 19: // Gem Thief
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "A thief is attempting to steal some of your gems!" +  
+                " " +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "Stop them!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {3.1f, -1, 100});
+                Choice1_Effects.Add(new float[] {3.2f, -5, 100});
+                Choice1_Effects.Add(new float[] {2.1f, -1, 40});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "Let him go."; // Text for option 2
+                Choice2_Effects.Add(new float[] {3.2f, 7, 100}); 
+                Choice2_Effects.Add(new float[] {1.2f, -5, 75}); 
+                Choice2_Effects.Add(new float[] {4.1f, -6, 50}); 
+                break; // leave this
+            case 20: // MR BEAST
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "A fowl beast has invaded the village!" +  
+                " " +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "Send in my guards!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {2.1f, -3, 30});
+                Choice1_Effects.Add(new float[] {1.1f, -1, 20}); 
+                Choice1_Effects.Add(new float[] {1.2f, 6, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "Just one of my guards will be enough!"; // Text for option 2
+                Choice2_Effects.Add(new float[] {2.1f, -1, 90}); 
+                Choice2_Effects.Add(new float[] {1.1f, -2, 30}); 
+                Choice2_Effects.Add(new float[] {1.2f, 3, 100}); 
+                break; // leave this
+            case 21: // Raid rival kingdom (high guards and happiness)
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Sire," +  
+                "<br>There is a rival kingdom nearby! Should we raid them?" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "Take them out!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {2.1f, -5, 35});
+                Choice1_Effects.Add(new float[] {1.1f, 6, 40});
+                Choice1_Effects.Add(new float[] {1.2f, 6, 100});
+                Choice1_Effects.Add(new float[] {4.1f, 30, 50});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "They won’t be a threat"; // Text for option 2
+                Choice2_Effects.Add(new float[] {0f, 0, 100}); 
+                Choice2_Effects.Add(new float[] {0f, 0, 100}); 
+                break; // leave this
+            case 22: // Buddy Stealing
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Hey, scum!" +  
+                "<br>One of my buddies got caught stealing and is getting executed tomorrow. If you free him, I’ll put in a good word about you to the thieves." +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "You can watch his execution!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {3.2f, -5, 100});
+                Choice1_Effects.Add(new float[] {1.2f, 5, 100});
+                Choice1_Effects.Add(new float[] {3.1f, -1, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "Keep this between us"; // Text for option 2
+                Choice2_Effects.Add(new float[] {3.2f, 15, 100}); 
+                Choice2_Effects.Add(new float[] {1.2f, -7, 40}); 
+                Choice2_Effects.Add(new float[] {2.2f, -7, 40}); 
+                break; // leave this
+            case 23: // Thief leader
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Your Majesty!" +  
+                "<br>We found one of the leaders of the thieves guild! Should we assassinate him?" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "I expect to see them dead!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {2.1f, -4, 40});
+                Choice1_Effects.Add(new float[] {3.1f, -7, 65});
+                Choice1_Effects.Add(new float[] {1.2f, 10, 100});
+                Choice1_Effects.Add(new float[] {3.2f, -10, 100});
+                Choice1_Effects.Add(new float[] {4.1f, 25, 40});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "It’s not worth the risk"; // Text for option 2
+                Choice2_Effects.Add(new float[] {3.2f, 5, 100}); 
+                Choice2_Effects.Add(new float[] {2.2f, -5, 50}); 
+                break; // leave this
+            case 24: // Guard break
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Sire," +  
+                "We guards are getting rather tired from standing at our posts for so long. Could we receive a small break?" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "A guard with energy is a deadly one!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {2.2f, 12, 100});
+                Choice1_Effects.Add(new float[] {1.1f, -5, 50});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "No, we need to stay on high alert"; // Text for option 2
+                Choice2_Effects.Add(new float[] {2.2f, -5, 100}); 
+                Choice2_Effects.Add(new float[] {1.2f, 3, 100}); 
+                break; // leave this
+            case 25: // Secret lover
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Dear my beloved," +  
+                "I would love to see you! But I need the money to get to you. Could you spare some gold so that we can be together for the evening?" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "Of course, my love!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {3.2f, 1, 100});
+                Choice1_Effects.Add(new float[] {4.1f, -10, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "Sorry, I’m too busy"; // Text for option 2
+                Choice2_Effects.Add(new float[] {3.2f, -1, 100}); 
+                Choice2_Effects.Add(new float[] {0f, 0, 100}); 
+                break; // leave this
+            case 26: // Rich cave
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Your Majesty," +  
+                "<br>We found an eerie cave filled with gold nearby. Should we take the loot?" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "Of course!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {2.1f, -2, 50});
+                Choice1_Effects.Add(new float[] {4.1f, 20, 50});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "It’s too sketchy"; // Text for option 2
+                Choice2_Effects.Add(new float[] {2.2f, -1, 100}); 
+                Choice2_Effects.Add(new float[] {0f, 0, 100}); 
+                break; // leave this
+            case 27: // uhhh?
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Erg." +  
+                "<br>Grrg ug brug frmmm hrn?" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "Uuh. Yes?"; // Text for option 1
+                Choice1_Effects.Add(new float[] {4.1f, -5, 100});
+                Choice1_Effects.Add(new float[] {0f, 0, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "I don’t think so?"; // Text for option 2
+                Choice2_Effects.Add(new float[] {1.1f, -1, 100}); 
+                Choice2_Effects.Add(new float[] {2.1f, -1, 30}); 
+                break; // leave this
+            case 28: // Thief attack
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Help! It’s urgent!" +  
+                "<br>The thieves are trying to attack our village!" +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "I’ll get my guards on it!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {2.1f, -4, 35});
+                Choice1_Effects.Add(new float[] {1.2f, 5, 100});
+                Choice1_Effects.Add(new float[] {1.1f, -5, 30});
+                Choice1_Effects.Add(new float[] {3.2f, -6, 30});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "They’re busy. You got this!"; // Text for option 2
+                Choice2_Effects.Add(new float[] {1.2f, -6, 100}); 
+                Choice2_Effects.Add(new float[] {1.1f, -10, 100}); 
+                Choice2_Effects.Add(new float[] {3.2f, 6, 100}); 
+                break; // leave this
+            case 29: // Peasants playing with fire
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "We have a problem." +  
+                "<br>Some of the peasants are playing with fire." +
+                " ";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "I’ll have someone stop them!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {1.1f, -3, 60});
+                Choice1_Effects.Add(new float[] {2.1f, -1, 35});
+                Choice1_Effects.Add(new float[] {1.2f, -4, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "They’ll learn their lesson!"; // Text for option 2
+                Choice2_Effects.Add(new float[] {1.1f, -6, 100}); 
+                Choice2_Effects.Add(new float[] {1.2f, 3, 100}); 
+                break; // leave this
+            case 30: // Thieves leaving
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Hey, Scum!" +  
+                "<br>Some of us thieves are willing to leave your rotten kingdom if you pay us some gold." +
+                "<br>Sounds like a deal, huh?";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "I will not let you annoy other villages!"; // Text for option 1
+                Choice1_Effects.Add(new float[] {3.2f, -4, 100});
+                Choice1_Effects.Add(new float[] {0f, 0, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "Fine. Get out of here!"; // Text for option 2
+                Choice2_Effects.Add(new float[] {4.1f, -27, 100}); 
+                Choice2_Effects.Add(new float[] {3.1f, -5, 70}); 
+                break; // leave this
+            case 31: // dnt knw hw 2 rght
+                MainText = // the three lines below are just for text (use <br> for line break), put in the " "
+                "Der Majersty," +  
+                "<br>Som of us dnt know hwo 2 right well." +
+                "<br>can yuo help?";
+                // Choice 1 - // (this is just a comment)
+                Choice1_Text = "I’ll hire you a tutor"; // Text for option 1
+                Choice1_Effects.Add(new float[] {4.1f, 7, 100});
+                Choice1_Effects.Add(new float[] {1.2f, 3, 100});
+                // Choice 2 - // (this is just a comment)
+                Choice2_Text = "You can write good enough"; // Text for option 2
+                Choice2_Effects.Add(new float[] {1.2f, -1, 25}); 
+                Choice2_Effects.Add(new float[] {0f, 0, 100}); 
+                break; // leave this
 
 
 

@@ -7,6 +7,7 @@ using TMPro;
 public class EndStats : MonoBehaviour
 {
     public TMP_Text DaysSurvivedText;
+    public TMP_Text DeathMessageText;
 
     // Start is called before the first frame update
     void Start()
@@ -18,5 +19,6 @@ public class EndStats : MonoBehaviour
     void Update()
     {
         DaysSurvivedText.text = (Info.days).ToString();
+        DeathMessageText.text = (Info.deathmessage).ToString();
     }
 }
