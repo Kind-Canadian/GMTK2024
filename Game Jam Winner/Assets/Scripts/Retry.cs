@@ -22,6 +22,6 @@ public class Retry : MonoBehaviour
         //have to go to the build settings under file and do some stuff there
         //I didn't do it now because I feared that it could cause a merge error with Brennen that could not be resolved 
         //due to him not having access to the scene that I am trying to add to the build
-        //SceneManager.LoadScene("TheMainMenu");
+        SceneManager.LoadScene(0);
     }
 }
