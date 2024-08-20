@@ -7,6 +7,7 @@ using TMPro;
 public class Info : MonoBehaviour
 {
     public static int days;
+    public static string deathmessage = "uhh oopsie this broke!";
     public TextMeshProUGUI tmp;
     public GameObject textmesh;
     public int test = 5;
